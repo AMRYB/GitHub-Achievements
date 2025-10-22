@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GitHub Achievements – Login + Tiers</title>
+  <style>
+    :root{
+      --bg:#0d1117; --panel:#0f1724; --panel-2:#111827; --text:#e6edf3; --muted:#a6b3c1; --border:#263244; --brand:#238636;
+      --bronze:#cd7f32; --silver:#c0c0c0; --gold:#ffd700; --locked:#8b949e;
+      --chip:#1f2937; --chip-brd:#344155;
+      --shadow: 0 10px 25px rgba(0,0,0,.25);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Tahoma,Arial;background:radial-gradient(1200px 800px at 20% -10%, #0b1320, #0d1117);color:var(--text)}
+    a{color:#58a6ff;text-decoration:none}
+
+    header{position:sticky;top:0;z-index:10;background:linear-gradient(180deg,rgba(13,17,23,.95),rgba(13,17,23,.7));backdrop-filter:saturate(120%) blur(6px);border-bottom:1px solid var(--border)}
+    .wrap{max-width:1180px;margin:0 auto;padding:16px}
+
+    .title{display:flex;gap:14px;align-items:center;justify-content:space-between}
+    .brand{display:flex;gap:12px;align-items:center}
+    .brand h1{margin:6px 0;font-size:clamp(18px,2.8vw,26px)}
+    .subtitle{margin:2px 0 0;color:var(--muted)}
+
+    .actions{display:flex;gap:10px;align-items:center}
+    .avatar{width:28px;height:28px;border-radius:999px;border:1px solid var(--border);object-fit:cover}
+    button, .btn{padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:var(--brand);color:white;font-weight:600;cursor:pointer;box-shadow:var(--shadow);}
+    button.secondary{background:transparent;color:var(--text);box-shadow:none}
+    button.ghost{background:transparent;color:var(--muted);border-color:var(--border);box-shadow:none}
+    button:hover{filter:brightness(1.05)}
+
+    main{max-width:1180px;margin:0 auto;padding:18px}
+
+    /* Controls */
+    .controls{display:grid;grid-template-columns:1fr auto auto;gap:10px;margin:12px 0 18px}
+    .search{display:flex;gap:8px;align-items:center;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:6px 8px}
+    .search input{flex:1;padding:10px 10px;border:0;background:transparent;color:var(--text);outline:none}
+    .search svg{opacity:.8}
+    .select{display:flex;gap:8px;align-items:center;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:6px 8px}
+    select{background:transparent;color:var(--text);border:0;outline:none;padding:8px}
+
+    .chips{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{background:var(--chip);border:1px solid var(--chip-brd);color:var(--muted);padding:6px 10px;border-radius:999px;font-size:.9rem;cursor:pointer;user-select:none}
+    .chip[data-active="true"]{color:#dbeafe;background:#12233a;border-color:#28507f}
+
+    /* Grid */
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+    .card{position:relative;display:flex;gap:12px;align-items:center;background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--border);border-radius:16px;padding:14px;transition:transform .15s ease, border-color .2s;box-shadow:var(--shadow)}
+    .card:hover{transform:translateY(-2px)}
+    .card img{width:62px;height:62px;border-radius:14px;border:1px solid var(--border);object-fit:cover;background:#0b0b0b}
+    .meta{display:flex;flex-direction:column;gap:4px}
+    .name{font-weight:800;letter-spacing:.2px}
+    .desc{color:var(--muted);font-size:.95rem}
+    .pill{margin-inline-start:auto;border:1px solid var(--border);padding:2px 8px;border-radius:999px;font-size:.85rem}
+    .tier-bronze{background:rgba(205,127,50,.12);border-color:rgba(205,127,50,.4)}
+    .tier-silver{background:rgba(192,192,192,.12);border-color:rgba(192,192,192,.4)}
+    .tier-gold{background:rgba(255,215,0,.12);border-color:rgba(255,215,0,.4)}
+
+    /* Locked */
+    .locked{opacity:.6;filter:saturate(60%)}
+    .locked img{filter:grayscale(100%)}
+    .locked .pill{background:transparent;border-style:dashed;color:var(--locked)}
+
+    /* Badges row */
+    .badges{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+    .badge{font-size:.78rem;padding:3px 8px;border-radius:999px;border:1px solid var(--border);background:#1a2432;color:#cfe0ff}
+
+    /* Loading overlay */
+    .overlay{position:fixed;inset:0;background:rgba(2,6,23,.45);backdrop-filter:blur(2.5px);display:none;align-items:center;justify-content:center;z-index:50}
+    .spinner{width:56px;height:56px;border-radius:50%;border:5px solid #243145;border-top-color:#58a6ff;animation:spin .9s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    .status{min-height:22px;text-align:center;margin:8px 0 18px;color:var(--muted)}
+    .hero{border:1px dashed var(--border);border-radius:16px;padding:24px;text-align:center;background:rgba(22,27,34,.35)}
+
+    /* Toast */
+    .toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#0b1320;border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:12px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity .2s ease}
+    .toast.show{opacity:1;pointer-events:auto}
+
+    /* Compact toggle */
+    .compact .card{padding:10px}
+    .compact .card img{width:48px;height:48px;border-radius:10px}
+
+    footer{padding:28px 16px;text-align:center;color:var(--muted)}
+
+    @media (prefers-color-scheme: light){
+      :root{--bg:#f6f8fa;--panel:#ffffff;--panel-2:#fafafa;--text:#0b141f;--muted:#4b5563;--border:#d0d7de;--brand:#16a34a;--locked:#6b7280;--chip:#f3f4f6;--chip-brd:#e5e7eb}
+      body{background:radial-gradient(1200px 800px at 20% -10%, #eef2ff, #f6f8fa)}
+    }
+  </style>
+</head>
+<body>
+  <div id="overlay" class="overlay" aria-hidden="true"><div class="spinner" role="status" aria-label="Loading"></div></div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <header>
+    <div class="wrap">
+      <div class="title">
+        <div class="brand">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.99 5.24.99 11.5c0 4.85 3.14 8.96 7.49 10.41.55.1.75-.24.75-.54 0-.27-.01-1.15-.02-2.09-3.05.66-3.69-1.3-3.69-1.3-.5-1.28-1.23-1.62-1.23-1.62-.99-.68.08-.66.08-.66 1.1.08 1.68 1.13 1.68 1.13.98 1.68 2.58 1.2 3.22.92.1-.72.38-1.2.69-1.48-2.44-.28-5-1.22-5-5.44 0-1.2.43-2.17 1.13-2.94-.11-.28-.49-1.42.11-2.96 0 0 .93-.3 3.06 1.12a10.6 10.6 0 0 1 5.57 0c2.13-1.42 3.06-1.12 3.06-1.12.6 1.54.22 2.68.11 2.96.7.77 1.13 1.75 1.13 2.94 0 4.23-2.57 5.16-5.02 5.44.39.33.74.99.74 2 0 1.45-.01 2.62-.01 2.98 0 .3.2.64.76.53A10.99 10.99 0 0 0 23 11.5C23 5.24 18.27.5 12 .5Z"/></svg>
+          <div>
+            <h1>GitHub Achievements</h1>
+            <p class="subtitle" id="subtitle">Login → loading → earned in color; locked in gray with how to earn. Filters, search, sort, compact view.</p>
+          </div>
+        </div>
+        <div class="actions">
+          <img id="avatar" class="avatar" alt="" style="display:none"/>
+          <span id="who" class="subtitle"></span>
+          <button id="login" title="Login with GitHub">Login</button>
+          <button id="logout" class="ghost" style="display:none" title="Logout">Logout</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="controls">
+      <div class="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27a6.471 6.471 0 0 0 1.48-5.34C15.19 5.01 12.17 2 8.59 2S2 5.01 2 8.39c0 3.58 3.01 6.6 6.59 6.6 1.61 0 3.09-.57 4.24-1.52l.27.28v.79L18 20.49 20.49 18 15.5 14zM8.59 13c-2.55 0-4.61-2.06-4.61-4.61S6.04 3.78 8.59 3.78s4.61 2.06 4.61 4.61S11.14 13 8.59 13z"/></svg>
+        <input id="q" type="text" placeholder="Search achievements… (name/description)"/>
+      </div>
+      <div class="select">
+        <label for="sort">Sort</label>
+        <select id="sort">
+          <option value="earned">Earned first</option>
+          <option value="name">Name A→Z</option>
+          <option value="tier">Tier (Gold→Bronze→None)</option>
+        </select>
+      </div>
+      <div class="select">
+        <label for="view">View</label>
+        <select id="view">
+          <option value="normal">Normal</option>
+          <option value="compact">Compact</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="chips" id="chips">
+      <div class="chip" data-key="earned" data-active="true">Earned</div>
+      <div class="chip" data-key="locked" data-active="true">Locked</div>
+      <div class="chip" data-key="gold" data-active="true">Gold</div>
+      <div class="chip" data-key="silver" data-active="true">Silver</div>
+      <div class="chip" data-key="bronze" data-active="true">Bronze</div>
+      <div class="chip" data-key="none" data-active="true">No Tier</div>
+    </div>
+
+    <div id="status" class="status"></div>
+
+    <section id="hero" class="hero" style="display:none">
+      <h2>Welcome</h2>
+      <p>Sign in with GitHub to view your achievements. Use filters, search and sort to explore. Locked ones appear gray and tell you how to earn them.</p>
+      <div class="row" style="margin-top:10px"><button id="login2" class="btn">Login with GitHub</button><button id="mock" class="secondary">Try mock data</button></div>
+    </section>
+
+    <section id="grid" class="grid" aria-live="polite" aria-busy="false"></section>
+  </main>
+
+  <footer>
+    <p>Backend endpoints: <code>/api/session</code>, <code>/api/login-url</code>, <code>/api/logout</code>, <code>/api/achievements/me</code>.</p>
+  </footer>
+
+  <script>
+    // ====== CONFIG ======
+    const API_BASE = ""; // e.g. "http://localhost:5000"
+
+    // ====== DOM ======
+    const grid = document.getElementById("grid");
+    const statusEl = document.getElementById("status");
+    const hero = document.getElementById("hero");
+    const loginBtn = document.getElementById("login");
+    const loginBtn2 = document.getElementById("login2");
+    const logoutBtn = document.getElementById("logout");
+    const mockBtn = document.getElementById("mock");
+    const who = document.getElementById("who");
+    const avatar = document.getElementById("avatar");
+    const overlay = document.getElementById("overlay");
+    const toast = document.getElementById("toast");
+    const q = document.getElementById('q');
+    const sortSel = document.getElementById('sort');
+    const viewSel = document.getElementById('view');
+    const chips = document.getElementById('chips');
+
+    let RAW = [];
+
+    // ====== Helpers ======
+    const showOverlay = (on)=>{ overlay.style.display = on ? 'flex':'none'; overlay.setAttribute('aria-hidden', on ? 'false':'true'); }
+    const setStatus = (msg)=>{ statusEl.textContent = msg || ""; }
+    const skeleton = (n=8)=>{ grid.innerHTML = ""; grid.setAttribute("aria-busy","true"); const f = document.createDocumentFragment(); for(let i=0;i<n;i++){ const sk=document.createElement('div'); sk.className='sk-card skeleton'; f.appendChild(sk);} grid.appendChild(f); }
+    const toastMsg = (m)=>{ toast.textContent=m; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),1800); }
+
+    const tierOrder = t => t==='gold'?3 : t==='silver'?2 : t==='bronze'?1 : 0;
+    const toPillClass = t => t==='gold' ? 'tier-gold pill' : t==='silver' ? 'tier-silver pill' : t==='bronze' ? 'tier-bronze pill' : 'pill';
+
+    function currentFilters(){
+      const act = {}; [...chips.children].forEach(c=>act[c.dataset.key]=c.getAttribute('data-active')==='true');
+      return act;
+    }
+
+    function applyView(){
+      const compact = viewSel.value==='compact';
+      document.body.classList.toggle('compact', compact);
+      localStorage.setItem('view', viewSel.value);
+    }
+
+    function filtered(){
+      const f = currentFilters();
+      const term = q.value.trim().toLowerCase();
+      let list = RAW.slice();
+      if(term){
+        list = list.filter(a=> (a.name||'').toLowerCase().includes(term) || (a.description||'').toLowerCase().includes(term));
+      }
+      list = list.filter(a=> (a.earned && f.earned) || (!a.earned && f.locked));
+      list = list.filter(a=> {
+        const tier = a.tier||'none';
+        return (tier==='gold' && f.gold) || (tier==='silver' && f.silver) || (tier==='bronze' && f.bronze) || (tier==='none' && f.none);
+      });
+      const sort = sortSel.value;
+      if(sort==='name') list.sort((a,b)=> (a.name||'').localeCompare(b.name||''));
+      else if(sort==='tier') list.sort((a,b)=> tierOrder(b.tier)-tierOrder(a.tier));
+      else list.sort((a,b)=> (b.earned?1:0)-(a.earned?1:0));
+      return list;
+    }
+
+    function render(list, source){
+      grid.innerHTML = ""; grid.setAttribute("aria-busy","false");
+      if(source){ statusEl.innerHTML = `Source: <a href="${source}" target="_blank" rel="noreferrer">Achievements page</a>`; }
+      if(!list || list.length===0){ grid.innerHTML = `<p style="text-align:center">Nothing to show with current filters.</p>`; return; }
+      const frag = document.createDocumentFragment();
+      list.forEach(a => {
+        const card = document.createElement('div');
+        card.className = 'card' + (a.earned ? '' : ' locked');
+        const img = document.createElement('img'); img.src=a.image||''; img.alt=a.name||'achievement';
+        const meta = document.createElement('div'); meta.className='meta';
+        const title = document.createElement('div'); title.className='name'; title.textContent=a.name||'Achievement';
+        const desc = document.createElement('div'); desc.className='desc'; desc.textContent=a.description || (a.earned? '' : 'Not earned yet');
+        const pill = document.createElement('div'); pill.className = toPillClass(a.tier); pill.textContent = a.earned ? (a.tier ? a.tier.toUpperCase() : 'EARNED') : 'LOCKED';
+        meta.appendChild(title); if(desc.textContent) meta.appendChild(desc);
+        // badges row
+        const badges = document.createElement('div'); badges.className='badges';
+        if(a.earned){ const b=document.createElement('div'); b.className='badge'; b.textContent='Earned'; badges.appendChild(b); }
+        if(a.tier){ const t=document.createElement('div'); t.className='badge'; t.textContent=a.tier; badges.appendChild(t); }
+        if(!a.earned && a.how){ const h=document.createElement('div'); h.className='badge'; h.textContent='How to earn'; h.title=a.how; badges.appendChild(h); }
+        if(badges.children.length) meta.appendChild(badges);
+
+        card.appendChild(img); card.appendChild(meta); card.appendChild(pill);
+        frag.appendChild(card);
+      });
+      grid.appendChild(frag);
+    }
+
+    // ====== API ======
+    async function apiJson(path, opts={}){
+      if(!API_BASE){ throw new Error('Set API_BASE to your backend URL'); }
+      const res = await fetch(API_BASE + path, { credentials:'include', ...opts });
+      const data = await res.json();
+      if(!data.ok) throw new Error(data.error || 'Request failed');
+      return data;
+    }
+
+    async function startLogin(){ try{ showOverlay(true); setStatus('Redirecting to GitHub…'); const { url } = await apiJson('/api/login-url'); window.location.href = url; } catch(e){ setStatus(e.message); toastMsg('Login failed'); } finally{ showOverlay(false); } }
+    async function doLogout(){ try{ showOverlay(true); await apiJson('/api/logout', { method:'POST' }); location.reload(); } catch(e){ toastMsg('Logout failed'); } finally{ showOverlay(false); } }
+
+    async function loadSession(){
+      try{
+        showOverlay(true);
+        const data = await apiJson('/api/session');
+        if(data.authenticated){
+          who.innerHTML = `Signed in as <strong>${data.user.login}</strong>`;
+          if(data.user.avatar_url){ avatar.src=data.user.avatar_url; avatar.style.display='inline-block'; }
+          loginBtn.style.display = 'none'; logoutBtn.style.display = 'inline-block'; hero.style.display = 'none';
+          await loadAchievements();
+        } else {
+          hero.style.display = 'block'; who.textContent = ''; avatar.style.display='none';
+          loginBtn.style.display = 'inline-block'; logoutBtn.style.display = 'none'; setStatus(''); grid.innerHTML = '';
+        }
+      }catch(err){ hero.style.display = 'block'; setStatus(err.message); }
+      finally{ showOverlay(false); }
+    }
+
+    async function loadAchievements(){
+      skeleton();
+      try{
+        const { achievements, source } = await apiJson('/api/achievements/me');
+        RAW = achievements || [];
+        render(filtered(), source);
+      }catch(err){ setStatus(err.message); grid.innerHTML=''; }
+    }
+
+    // ====== Mock ======
+    function mockData(){
+      RAW = [
+        { key:'arctic', name:'Arctic Code Vault Contributor', description:'Contributed code archived in the GitHub Arctic Code Vault.', image:'https://github.githubassets.com/images/modules/profile/achievements/arctic-code-vault-contributor-default.png', earned:true, tier:null },
+        { key:'yolo', name:'YOLO', description:'Merged a pull request without a review.', image:'https://github.githubassets.com/images/modules/profile/achievements/yolo-default.png', earned:true, tier:'bronze' },
+        { key:'pair', name:'Pair Extraordinaire', description:'Co-authored commits on a repository.', image:'https://github.githubassets.com/images/modules/profile/achievements/pair-extraordinaire-default.png', earned:false, tier:null, how:'Co-author a commit with someone' },
+        { key:'galaxy', name:'Galaxy Brain', description:'2,000 stars on a repository.', image:'https://github.githubassets.com/images/modules/profile/achievements/galaxy-brain-default.png', earned:true, tier:'gold' },
+        { key:'pull-shark', name:'Pull Shark', description:'Opened pull requests that have been merged.', image:'https://github.githubassets.com/images/modules/profile/achievements/pull-shark-default.png', earned:false, tier:null, how:'Open and get PRs merged' },
+        { key:'quickdraw', name:'Quickdraw', description:'Closed an issue or PR within 5 minutes of opening.', image:'https://github.githubassets.com/images/modules/profile/achievements/quickdraw-default.png', earned:false, tier:null, how:'Close your own issue/PR within 5 minutes' },
+        { key:'starstruck', name:'Starstruck', description:'Created a repository that has many stars.', image:'https://github.githubassets.com/images/modules/profile/achievements/starstruck-default.png', earned:true, tier:'silver' }
+      ];
+      render(filtered());
+    }
+
+    // ====== Events ======
+    const chipClick = e => {
+      const c = e.target.closest('.chip'); if(!c) return;
+      const on = c.getAttribute('data-active')==='true';
+      c.setAttribute('data-active', String(!on));
+      render(filtered());
+    };
+
+    loginBtn.addEventListener('click', startLogin);
+    if(loginBtn2) loginBtn2.addEventListener('click', startLogin);
+    logoutBtn.addEventListener('click', doLogout);
+    if(mockBtn) mockBtn.addEventListener('click', ()=>{ setStatus('Mock data'); skeleton(5); setTimeout(()=>{ mockData(); toastMsg('Loaded mock achievements'); }, 500); });
+    chips.addEventListener('click', chipClick);
+    q.addEventListener('input', ()=> render(filtered()));
+    sortSel.addEventListener('change', ()=> render(filtered()));
+    viewSel.addEventListener('change', applyView);
+
+    // ====== Init ======
+    (async function init(){
+      // restore view
+      const savedView = localStorage.getItem('view');
+      if(savedView){ viewSel.value = savedView; }
+      applyView();
+
+      if(API_BASE){ await loadSession(); }
+      else { hero.style.display='block'; setStatus('Using mock mode (set API_BASE for real login).'); mockData(); }
+    })();
+  </script>
+</body>
+</html>
