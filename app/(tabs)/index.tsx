@@ -60,30 +60,6 @@ export default function CatalogScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginBottom: 2 }}>
-            <Trophy size={28} color={colors.text} />
-            <Text style={[styles.title, { color: colors.text }]}>Achievements</Text>
-          </View>
-          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-            {achievements.length} achievements • {achievements.filter(a => a.isEarnable).length} earnable
-          </Text>
-        </View>
-        <View style={styles.headerRight}>
-          <TouchableOpacity onPress={toggleTheme} style={[styles.themeBtn, { backgroundColor: colors.surfaceSecondary }]}>
-            {isDark ? <Sun size={20} color={colors.text} /> : <Moon size={20} color={colors.text} />}
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => router.push('/settings')}
-            style={[styles.settingsBtn, { backgroundColor: colors.surfaceSecondary }]}
-          >
-            <Settings size={20} color={colors.text} />
-          </TouchableOpacity>
-        </View>
-      </View>
-
       <SearchFilter
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}

@@ -47,14 +47,6 @@ export default function ActionsScreen() {
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
     >
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginBottom: Spacing.xs }}>
-        <Zap size={28} color={colors.text} />
-        <Text style={[styles.pageTitle, { color: colors.text, marginBottom: 0 }]}>Actions</Text>
-      </View>
-      <Text style={[styles.pageSubtitle, { color: colors.textSecondary }]}>
-        Quick shortcuts to help you earn achievements — no tricks, no automation.
-      </Text>
-
       {/* Sync Section */}
       {isAuthenticated && (
         <ActionSection title="Sync" description="Re-fetch your GitHub data to update progress." colors={colors}>
@@ -203,6 +195,7 @@ const styles = StyleSheet.create({
   content: {
     padding: Spacing.lg,
     paddingBottom: 40,
+    marginTop: Spacing.lg,
   },
   pageTitle: {
     fontSize: FontSizes.xxl,

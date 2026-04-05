@@ -179,6 +179,10 @@ const styles = StyleSheet.create({
   content: {
     padding: Spacing.lg,
     paddingBottom: 40,
+    marginTop: Spacing.lg,
+  },
+  headerBox: {
+    paddingBottom: Spacing.sm,
   },
   title: {
     fontSize: FontSizes.xxl,
