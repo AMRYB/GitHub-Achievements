@@ -34,7 +34,7 @@ export default function SettingsScreen() {
         setTokenInput('');
         // Auto-sync on first connect
         try {
-          await sync();
+          await sync(trimmed);
         } catch {
           // Sync error handled by context
         }

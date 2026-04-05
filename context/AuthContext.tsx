@@ -14,7 +14,7 @@ interface AuthContextType {
   syncError: string | null;
   setToken: (token: string) => Promise<void>;
   logout: () => Promise<void>;
-  sync: () => Promise<void>;
+  sync: (overrideToken?: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -70,12 +70,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSyncError(null);
   };
 
-  const sync = async () => {
-    if (!token) return;
+  const sync = async (overrideToken?: string) => {
+    const currentToken = overrideToken || token;
+    if (!currentToken) return;
     setIsSyncing(true);
     setSyncError(null);
     try {
-      const result = await runSync(token);
+      const result = await runSync(currentToken);
       setProfile(result.profile);
       setLastSync(result);
       const updatedProgress = await storage.getProgress();

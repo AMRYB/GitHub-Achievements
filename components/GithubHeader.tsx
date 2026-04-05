@@ -22,12 +22,7 @@ export function GithubHeader() {
 
   const repoTabs = [
     { label: 'Code', icon: Code, route: '/' },
-    { label: 'Issues', icon: CircleDot, route: null },
-    { label: 'Pull requests', icon: GitPullRequest, route: null },
     { label: 'Actions', icon: PlayCircle, route: '/actions' },
-    { label: 'Projects', icon: Columns, route: null },
-    { label: 'Wiki', icon: BookOpen, route: null },
-    { label: 'Security', icon: Shield, route: null },
     { label: 'Insights', icon: LineChart, route: '/dashboard' },
   ];
 
@@ -36,9 +31,8 @@ export function GithubHeader() {
       {/* 1. Global Black Nav Bar */}
       <View style={styles.topNav}>
         <View style={styles.topLeft}>
-          <Menu color="#fff" size={24} style={styles.menuIcon} />
           <TouchableOpacity onPress={() => router.push('/')}>
-            <Image source={{ uri: 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png' }} style={{ width: 32, height: 32, tintColor: '#fff' }} />
+            <Image source={{ uri: 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png' }} style={{ width: 32, height: 32, tintColor: '#fff', marginRight: Spacing.md }} />
           </TouchableOpacity>
           <View style={styles.breadcrumb}>
             <Text style={[styles.breadcrumbText, { color: '#8b949e' }]}>{username}</Text>
@@ -65,8 +59,8 @@ export function GithubHeader() {
         </View>
       </View>
 
-      {/* 2. Repository Tabs Nav (Rendered on a slightly lighter dark background or transparent) */}
-      <View style={[styles.repoNav, { backgroundColor: '#0d1117', borderBottomColor: '#30363d' }]}>
+      {/* 2. Repository Tabs Nav */}
+      <View style={[styles.repoNav, { backgroundColor: '#010409', borderBottomColor: '#30363d' }]}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabsScroll}>
           {repoTabs.map((tab, idx) => {
             const isTabActive = pathname === tab.route;
@@ -201,7 +195,7 @@ const styles = StyleSheet.create({
     height: 32,
   },
   repoNav: {
-    backgroundColor: '#0d1117',
+    backgroundColor: '#010409',
     borderBottomWidth: 1,
     paddingHorizontal: Spacing.xl,
   },
