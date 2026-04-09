@@ -1,24 +1,27 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, Platform, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, Pressable, StyleSheet, Image, Platform, ScrollView, TextInput, Linking } from 'react-native';
 import { useTheme } from '@/context/ThemeContext';
 import { useAuth } from '@/context/AuthContext';
+import { useSearch } from '@/context/SearchContext';
 import { useRouter, usePathname } from 'expo-router';
 import { FontSizes, Spacing, BorderRadius, FontFamily } from '@/constants/theme';
+import { FontAwesome5 } from '@expo/vector-icons';
 import { 
-  Menu, Search, Sun, Moon, LogOut, Settings, User, Code, CircleDot, GitPullRequest, Bot, PlayCircle, Columns, BookOpen, Shield, LineChart
+  Menu, Search, Sun, Moon, LogOut, Settings, User, Code, CircleDot, GitPullRequest, Bot, PlayCircle, Columns, BookOpen, Shield, LineChart, Star, Globe
 } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export function GithubHeader() {
   const { isDark, toggleTheme, colors } = useTheme();
   const { profile, logout } = useAuth();
+  const { query, setQuery } = useSearch();
   const router = useRouter();
   const pathname = usePathname();
   const insets = useSafeAreaInsets();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const username = profile?.username || 'guest';
-  const avatarUrl = profile?.avatarUrl || 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png';
+  const avatarUrl = profile?.avatarUrl || 'https://github.com/identicons/newuser.png';
 
   const repoTabs = [
     { label: 'Code', icon: Code, route: '/' },
@@ -32,7 +35,7 @@ export function GithubHeader() {
       <View style={styles.topNav}>
         <View style={styles.topLeft}>
           <TouchableOpacity onPress={() => router.push('/')}>
-            <Image source={{ uri: 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png' }} style={{ width: 32, height: 32, tintColor: '#fff', marginRight: Spacing.md }} />
+            <FontAwesome5 name="github" size={32} color="#fff" style={{ marginRight: Spacing.md }} />
           </TouchableOpacity>
           <View style={styles.breadcrumb}>
             <Text style={[styles.breadcrumbText, { color: '#8b949e' }]}>{username}</Text>
@@ -42,18 +45,51 @@ export function GithubHeader() {
         </View>
 
         <View style={styles.topRight}>
-          <View style={styles.searchBox}>
+          <Pressable style={({ hovered }: any) => [styles.searchBox, hovered && styles.actionBtnHovered]}>
             <Search size={16} color="#8b949e" style={{ marginRight: Spacing.sm }} />
-            <Text style={[styles.searchText, { color: '#8b949e' }]}>Type </Text>
-            <View style={styles.searchKeyBox}><Text style={styles.searchKey}>/</Text></View>
-            <Text style={[styles.searchText, { color: '#8b949e' }]}> to search</Text>
-          </View>
-          
-          <TouchableOpacity onPress={toggleTheme} style={styles.iconBtn}>
-            {isDark ? <Sun size={20} color="#fff" /> : <Moon size={20} color="#fff" />}
-          </TouchableOpacity>
+            <View style={{ flex: 1, minWidth: 160, justifyContent: 'center' }}>
+              <TextInput
+                style={[styles.searchText, { color: '#fff', flex: 1, outlineStyle: 'none', zIndex: 2 } as any]}
+                placeholder=""
+                value={query}
+                onChangeText={(text) => {
+                  setQuery(text);
+                  if (pathname !== '/') {
+                    router.push('/');
+                  }
+                }}
+              />
+              {query === '' && (
+                <View pointerEvents="none" style={[StyleSheet.absoluteFill, {flexDirection: 'row', alignItems: 'center', zIndex: 1}]}>
+                  <Text style={{color: '#8b949e', fontSize: FontSizes.sm, fontFamily: Platform.OS === 'web' ? FontFamily.sans : undefined}}>Type</Text>
+                  <View style={[styles.searchKeyBox, { backgroundColor: 'transparent' }]}>
+                    <Text style={styles.searchKey}>/</Text>
+                  </View>
+                  <Text style={{color: '#8b949e', fontSize: FontSizes.sm, fontFamily: Platform.OS === 'web' ? FontFamily.sans : undefined}}>to search</Text>
+                </View>
+              )}
+            </View>
+          </Pressable>
 
-          <TouchableOpacity onPress={() => setMenuOpen(!menuOpen)} style={styles.avatarBtn} activeOpacity={0.8}>
+          <Pressable 
+            onPress={() => Linking.openURL('https://github.com/AMRYB/GitHub-Achievements')}
+            style={({ hovered }: any) => [styles.actionBtn, hovered && styles.actionBtnHovered]}
+          >
+            <Star size={16} color="#8b949e" />
+          </Pressable>
+
+          {/* Vertical Separator */}
+          <View style={styles.separator} />
+
+          <Pressable style={({ hovered }: any) => [styles.actionBtn, hovered && styles.actionBtnHovered]}>
+            <Globe size={16} color="#8b949e" />
+          </Pressable>
+          
+          <Pressable onPress={toggleTheme} style={({ hovered }: any) => [styles.actionBtn, hovered && styles.actionBtnHovered]}>
+            {isDark ? <Sun size={16} color="#8b949e" /> : <Moon size={16} color="#8b949e" />}
+          </Pressable>
+
+          <TouchableOpacity onPress={() => setMenuOpen(!menuOpen)} style={[styles.avatarBtn, { marginLeft: Spacing.xs }]} activeOpacity={0.8}>
             <Image source={{ uri: avatarUrl }} style={styles.avatar} />
           </TouchableOpacity>
         </View>
@@ -170,19 +206,46 @@ const styles = StyleSheet.create({
     fontFamily: Platform.OS === 'web' ? FontFamily.sans : undefined,
   },
   searchKeyBox: {
+    width: 16,
+    height: 16,
     borderWidth: 1,
     borderColor: '#30363d',
-    borderRadius: 4,
-    paddingHorizontal: 4,
+    borderRadius: 3,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    padding: 0,
     marginHorizontal: 4,
+    marginTop: 3,
   },
   searchKey: {
     color: '#8b949e',
-    fontSize: 10,
-    fontWeight: 'bold',
+    fontSize: 12,
+    // Fix layout offset in center
+    lineHeight: 14,
+    textAlign: 'center',
   },
-  iconBtn: {
-    marginRight: Spacing.lg,
+  separator: {
+    width: 1,
+    height: 18,
+    backgroundColor: '#30363d',
+    marginHorizontal: Spacing.sm,
+    display: Platform.OS === 'web' ? 'flex' : 'none',
+  },
+  actionBtn: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: '#30363d',
+    borderRadius: BorderRadius.md,
+    width: 30,
+    height: 30,
+    marginHorizontal: Spacing.xs,
+    display: Platform.OS === 'web' ? 'flex' : 'none',
+  },
+  actionBtnHovered: {
+    backgroundColor: 'rgba(177, 186, 196, 0.12)',
   },
   avatarBtn: {
     borderWidth: 1,

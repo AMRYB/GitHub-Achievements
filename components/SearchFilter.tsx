@@ -1,35 +1,20 @@
 import React, { useState } from 'react';
-import { View, TextInput, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { Search } from 'lucide-react-native';
 import { useTheme } from '@/context/ThemeContext';
 import { BorderRadius, FontSizes, Spacing } from '@/constants/theme';
 
 interface Props {
-  searchQuery: string;
-  onSearchChange: (text: string) => void;
   selectedFilter: string;
   onFilterChange: (filter: string) => void;
   filters: { key: string; label: string }[];
 }
 
-export function SearchFilter({ searchQuery, onSearchChange, selectedFilter, onFilterChange, filters }: Props) {
+export function SearchFilter({ selectedFilter, onFilterChange, filters }: Props) {
   const { colors } = useTheme();
 
   return (
     <View style={styles.container}>
-      <TextInput
-        style={[
-          styles.searchInput,
-          {
-            backgroundColor: colors.surfaceSecondary,
-            color: colors.text,
-            borderColor: colors.border,
-          },
-        ]}
-        placeholder="Search achievements..."
-        placeholderTextColor={colors.textMuted}
-        value={searchQuery}
-        onChangeText={onSearchChange}
-      />
       <View style={styles.filterRow}>
         {filters.map((filter) => (
           <TouchableOpacity
@@ -66,14 +51,6 @@ export function SearchFilter({ searchQuery, onSearchChange, selectedFilter, onFi
 const styles = StyleSheet.create({
   container: {
     marginBottom: Spacing.lg,
-  },
-  searchInput: {
-    height: 44,
-    borderRadius: BorderRadius.md,
-    borderWidth: 1,
-    paddingHorizontal: Spacing.lg,
-    fontSize: FontSizes.md,
-    marginBottom: Spacing.md,
   },
   filterRow: {
     flexDirection: 'row',

@@ -3,6 +3,7 @@ import { View, FlatList, StyleSheet, Text, useWindowDimensions } from 'react-nat
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/context/ThemeContext';
 import { useAuth } from '@/context/AuthContext';
+import { useSearch } from '@/context/SearchContext';
 import { achievements } from '@/data/achievements';
 import { AchievementCard } from '@/components/AchievementCard';
 import { SearchFilter } from '@/components/SearchFilter';
@@ -23,9 +24,9 @@ const FILTERS = [
 export default function CatalogScreen() {
   const { colors, toggleTheme, isDark } = useTheme();
   const { progress } = useAuth();
+  const { query } = useSearch();
   const router = useRouter();
   const { width } = useWindowDimensions();
-  const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
 
   const numColumns = width > 900 ? 3 : width > 600 ? 2 : 1;
@@ -33,8 +34,8 @@ export default function CatalogScreen() {
   const filtered = useMemo(() => {
     let result = [...achievements];
 
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
+    if (query.trim()) {
+      const q = query.toLowerCase();
       result = result.filter(
         (a) =>
           a.name.toLowerCase().includes(q) ||
@@ -52,7 +53,7 @@ export default function CatalogScreen() {
     }
 
     return result;
-  }, [searchQuery, selectedFilter]);
+  }, [query, selectedFilter]);
 
   const getProgressForAchievement = (achievementId: string) => {
     return progress.find((p) => p.achievementId === achievementId);
@@ -61,8 +62,6 @@ export default function CatalogScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <SearchFilter
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
         selectedFilter={selectedFilter}
         onFilterChange={setSelectedFilter}
         filters={FILTERS}
