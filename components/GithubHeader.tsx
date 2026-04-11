@@ -7,7 +7,7 @@ import { useRouter, usePathname } from 'expo-router';
 import { FontSizes, Spacing, BorderRadius, FontFamily } from '@/constants/theme';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { 
-  Menu, Search, Sun, Moon, LogOut, Settings, User, Code, CircleDot, GitPullRequest, Bot, PlayCircle, Columns, BookOpen, Shield, LineChart, Star, Globe
+  Menu, Search, Sun, Moon, LogOut, Settings, User, Code, CircleDot, GitPullRequest, Bot, PlayCircle, Columns, BookOpen, Shield, LineChart, Star, Globe, ArrowRightLeft
 } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -22,6 +22,9 @@ export function GithubHeader() {
 
   const username = profile?.username || 'guest';
   const avatarUrl = profile?.avatarUrl || 'https://github.com/identicons/newuser.png';
+  const fullName = profile?.name || username;
+  const statusEmoji = profile?.status?.emoji || '🕵️';
+  const statusMessage = profile?.status?.message || 'Focusing';
 
   const repoTabs = [
     { label: 'Code', icon: Code, route: '/' },
@@ -47,7 +50,7 @@ export function GithubHeader() {
         <View style={styles.topRight}>
           <Pressable style={({ hovered }: any) => [styles.searchBox, hovered && styles.actionBtnHovered]}>
             <Search size={16} color="#8b949e" style={{ marginRight: Spacing.sm }} />
-            <View style={{ flex: 1, minWidth: 160, justifyContent: 'center' }}>
+            <View style={{ flex: 1, minWidth: 90, justifyContent: 'center' }}>
               <TextInput
                 style={[styles.searchText, { color: '#fff', flex: 1, outlineStyle: 'none', zIndex: 2 } as any]}
                 placeholder=""
@@ -75,14 +78,32 @@ export function GithubHeader() {
             onPress={() => Linking.openURL('https://github.com/AMRYB/GitHub-Achievements')}
             style={({ hovered }: any) => [styles.actionBtn, hovered && styles.actionBtnHovered]}
           >
-            <Star size={16} color="#8b949e" />
+            {({ hovered }: any) => (
+              <>
+                <Star size={16} color="#8b949e" />
+                {Platform.OS === 'web' && hovered && (
+                  <View style={styles.tooltip}>
+                    <Text style={[styles.tooltipText, { whiteSpace: 'nowrap' } as any]}>Star the project</Text>
+                  </View>
+                )}
+              </>
+            )}
           </Pressable>
 
           {/* Vertical Separator */}
           <View style={styles.separator} />
 
           <Pressable style={({ hovered }: any) => [styles.actionBtn, hovered && styles.actionBtnHovered]}>
-            <Globe size={16} color="#8b949e" />
+            {({ hovered }: any) => (
+              <>
+                <Globe size={16} color="#8b949e" />
+                {Platform.OS === 'web' && hovered && (
+                  <View style={[styles.tooltip, { width: 200, right: -40, left: 'auto', transform: [] }]}>
+                    <Text style={[styles.tooltipText, { textAlign: 'center', lineHeight: 18 }]}>العربي، الانجليزي، الفرنساوي، الالماني، الروسي، الصيني</Text>
+                  </View>
+                )}
+              </>
+            )}
           </Pressable>
           
           <Pressable onPress={toggleTheme} style={({ hovered }: any) => [styles.actionBtn, hovered && styles.actionBtnHovered]}>
@@ -129,7 +150,20 @@ export function GithubHeader() {
       {/* Profile Dropdown Menu (Absolute positioned) */}
       {menuOpen && (
         <View style={[styles.dropdown, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <Text style={[styles.dropdownUsername, { color: colors.text }]}>{username}</Text>
+          <TouchableOpacity style={styles.dropdownHeaderArea} onPress={() => { router.push('/settings'); setMenuOpen(false); }}>
+            <Image source={{ uri: avatarUrl }} style={styles.dropdownAvatarLg} />
+            <View style={styles.dropdownUserInfo}>
+              <Text style={[styles.dropdownUsernameLg, { color: colors.text }]} numberOfLines={1}>{username}</Text>
+              <Text style={[styles.dropdownFullName, { color: '#8b949e' }]} numberOfLines={1}>{fullName}</Text>
+            </View>
+            <ArrowRightLeft size={16} color="#8b949e" style={{ marginLeft: 'auto' }} />
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.dropdownStatusArea}>
+            <Text style={{ fontSize: 16, marginRight: Spacing.sm }}>{statusEmoji}</Text>
+            <Text style={[styles.dropdownStatusText, { color: colors.text }]} numberOfLines={1}>{statusMessage}</Text>
+          </TouchableOpacity>
+
           <View style={[styles.dropdownDivider, { backgroundColor: colors.border }]} />
           
           <TouchableOpacity style={styles.menuItem} onPress={() => { router.push('/settings'); setMenuOpen(false); }}>
@@ -163,6 +197,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl,
     paddingVertical: Spacing.md,
     backgroundColor: '#010409',
+    zIndex: 10,
   },
   topLeft: {
     flexDirection: 'row',
@@ -261,6 +296,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#010409',
     borderBottomWidth: 1,
     paddingHorizontal: Spacing.xl,
+    zIndex: 1,
   },
   tabsScroll: {
     flexDirection: 'row',
@@ -281,7 +317,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 60,
     right: Spacing.xl,
-    width: 200,
+    width: 260,
     borderWidth: 1,
     borderRadius: BorderRadius.md,
     paddingVertical: Spacing.sm,
@@ -290,6 +326,44 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
     elevation: 5,
+    zIndex: 1000,
+  },
+  dropdownHeaderArea: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.md,
+    paddingBottom: Spacing.md,
+  },
+  dropdownAvatarLg: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: Spacing.md,
+  },
+  dropdownUserInfo: {
+    flexDirection: 'column',
+    justifyContent: 'center',
+  },
+  dropdownUsernameLg: {
+    fontSize: FontSizes.md,
+    fontWeight: '700',
+    fontFamily: Platform.OS === 'web' ? FontFamily.sans : undefined,
+  },
+  dropdownFullName: {
+    fontSize: FontSizes.sm,
+    fontFamily: Platform.OS === 'web' ? FontFamily.sans : undefined,
+    marginTop: 2,
+  },
+  dropdownStatusArea: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.lg,
+    paddingBottom: Spacing.md,
+  },
+  dropdownStatusText: {
+    fontSize: FontSizes.sm,
+    fontFamily: Platform.OS === 'web' ? FontFamily.sans : undefined,
   },
   dropdownUsername: {
     fontSize: FontSizes.sm,
@@ -310,6 +384,30 @@ const styles = StyleSheet.create({
   },
   menuItemText: {
     fontSize: FontSizes.sm,
+    fontFamily: Platform.OS === 'web' ? FontFamily.sans : undefined,
+  },
+  tooltip: {
+    position: 'absolute',
+    top: 36,
+    left: '50%',
+    transform: [{ translateX: '-50%' }],
+    backgroundColor: '#30363d',
+    borderColor: '#30363d',
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 6,
+    zIndex: 1000,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  tooltipText: {
+    color: '#fff',
+    fontSize: 12,
     fontFamily: Platform.OS === 'web' ? FontFamily.sans : undefined,
   },
 });

@@ -72,6 +72,25 @@ async function githubSearchCount(query: string, token: string): Promise<number> 
 
 export async function fetchProfile(token: string): Promise<GitHubProfile> {
   const data = await githubFetch('/user', token);
+  
+  let status = null;
+  try {
+    const graphqlResponse = await fetch('https://api.github.com/graphql', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query: '{ viewer { status { emoji message } } }' }),
+    });
+    const gData = await graphqlResponse.json();
+    if (gData?.data?.viewer?.status) {
+      status = gData.data.viewer.status;
+    }
+  } catch (e) {
+    console.error('Failed to fetch github status', e);
+  }
+
   return {
     username: data.login,
     avatarUrl: data.avatar_url,
@@ -81,6 +100,7 @@ export async function fetchProfile(token: string): Promise<GitHubProfile> {
     followers: data.followers,
     following: data.following,
     createdAt: data.created_at,
+    status,
   };
 }
 

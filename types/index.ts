@@ -73,6 +73,10 @@ export interface GitHubProfile {
   followers: number;
   following: number;
   createdAt: string;
+  status?: {
+    emoji: string | null;
+    message: string | null;
+  } | null;
 }
 
 export interface SyncMetrics {
