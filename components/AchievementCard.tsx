@@ -140,12 +140,16 @@ export function AchievementCard({ achievement, onPress, progress }: Props) {
 
 const styles = StyleSheet.create({
   card: {
+    flex: 1,
     borderRadius: BorderRadius.lg,
     borderWidth: 1,
     marginBottom: Spacing.md,
     overflow: 'hidden',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
   },
   cardContent: {
+    flexGrow: 1,
     padding: Spacing.lg,
   },
   header: {

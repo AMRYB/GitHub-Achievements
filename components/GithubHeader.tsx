@@ -6,7 +6,7 @@ import { useSearch } from '@/context/SearchContext';
 import { useRouter, usePathname } from 'expo-router';
 import { FontSizes, Spacing, BorderRadius, FontFamily } from '@/constants/theme';
 import { FontAwesome5 } from '@expo/vector-icons';
-import { 
+import {
   Menu, Search, Sun, Moon, LogOut, Settings, User, Code, CircleDot, GitPullRequest, Bot, PlayCircle, Columns, BookOpen, Shield, LineChart, Star, Globe, ArrowRightLeft
 } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -23,8 +23,12 @@ export function GithubHeader() {
   const username = profile?.username || 'guest';
   const avatarUrl = profile?.avatarUrl || 'https://github.com/identicons/newuser.png';
   const fullName = profile?.name || username;
-  const statusEmoji = profile?.status?.emoji || '🕵️';
-  const statusMessage = profile?.status?.message || 'Focusing';
+  const statusEmoji = profile?.status?.emoji || '😶‍🌫️';
+  const statusMessage = profile?.status?.message || 'Not doing anything';
+
+  const CUSTOM_EMOJIS: Record<string, string> = {
+    ':shipit:': 'https://github.githubassets.com/assets/shipit-ee78ea3eb431.png',
+  };
 
   const repoTabs = [
     { label: 'Code', icon: Code, route: '/' },
@@ -63,18 +67,18 @@ export function GithubHeader() {
                 }}
               />
               {query === '' && (
-                <View pointerEvents="none" style={[StyleSheet.absoluteFill, {flexDirection: 'row', alignItems: 'center', zIndex: 1}]}>
-                  <Text style={{color: '#8b949e', fontSize: FontSizes.sm, fontFamily: Platform.OS === 'web' ? FontFamily.sans : undefined}}>Type</Text>
+                <View pointerEvents="none" style={[StyleSheet.absoluteFill, { flexDirection: 'row', alignItems: 'center', zIndex: 1 }]}>
+                  <Text style={{ color: '#8b949e', fontSize: FontSizes.sm, fontFamily: Platform.OS === 'web' ? FontFamily.sans : undefined }}>Type</Text>
                   <View style={[styles.searchKeyBox, { backgroundColor: 'transparent' }]}>
                     <Text style={styles.searchKey}>/</Text>
                   </View>
-                  <Text style={{color: '#8b949e', fontSize: FontSizes.sm, fontFamily: Platform.OS === 'web' ? FontFamily.sans : undefined}}>to search</Text>
+                  <Text style={{ color: '#8b949e', fontSize: FontSizes.sm, fontFamily: Platform.OS === 'web' ? FontFamily.sans : undefined }}>to search</Text>
                 </View>
               )}
             </View>
           </Pressable>
 
-          <Pressable 
+          <Pressable
             onPress={() => Linking.openURL('https://github.com/AMRYB/GitHub-Achievements')}
             style={({ hovered }: any) => [styles.actionBtn, hovered && styles.actionBtnHovered]}
           >
@@ -105,7 +109,7 @@ export function GithubHeader() {
               </>
             )}
           </Pressable>
-          
+
           <Pressable onPress={toggleTheme} style={({ hovered }: any) => [styles.actionBtn, hovered && styles.actionBtnHovered]}>
             {isDark ? <Sun size={16} color="#8b949e" /> : <Moon size={16} color="#8b949e" />}
           </Pressable>
@@ -121,27 +125,28 @@ export function GithubHeader() {
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabsScroll}>
           {repoTabs.map((tab, idx) => {
             const isTabActive = pathname === tab.route;
-            const tabColor = isTabActive ? '#c9d1d9' : '#8b949e';
-            const borderBottomWidth = isTabActive ? 2 : 0;
-            const borderBottomColor = isTabActive ? '#f78166' : 'transparent';
             const fontFamily = Platform.OS === 'web' ? FontFamily.sans : undefined;
 
             return (
-              <TouchableOpacity
-                key={idx}
-                style={[styles.tabItem, { borderBottomWidth, borderBottomColor }]}
-                onPress={() => {
-                  if (tab.route) {
-                    router.push(tab.route as any);
-                    setMenuOpen(false);
-                  }
-                }}
-              >
-                <tab.icon size={16} color={tabColor} style={{ marginRight: 8 }} />
-                <Text style={[styles.tabText, { color: tabColor, fontWeight: isTabActive ? '600' : '400', fontFamily } as any]}>
-                  {tab.label}
-                </Text>
-              </TouchableOpacity>
+              <View key={idx} style={[styles.tabWrapper, isTabActive && styles.tabWrapperActive]}>
+                <Pressable
+                  style={({ hovered }: any) => [
+                    styles.tabItem,
+                    hovered && styles.tabItemHovered,
+                  ]}
+                  onPress={() => {
+                    if (tab.route) {
+                      router.push(tab.route as any);
+                      setMenuOpen(false);
+                    }
+                  }}
+                >
+                  <tab.icon size={16} color="#ffffff" style={{ marginRight: 8 }} />
+                  <Text style={[styles.tabText, { color: '#ffffff', fontWeight: isTabActive ? '600' : '400', fontFamily } as any]}>
+                    {tab.label}
+                  </Text>
+                </Pressable>
+              </View>
             );
           })}
         </ScrollView>
@@ -158,14 +163,21 @@ export function GithubHeader() {
             </View>
             <ArrowRightLeft size={16} color="#8b949e" style={{ marginLeft: 'auto' }} />
           </TouchableOpacity>
-          
+
           <TouchableOpacity style={styles.dropdownStatusArea}>
-            <Text style={{ fontSize: 16, marginRight: Spacing.sm }}>{statusEmoji}</Text>
+            {CUSTOM_EMOJIS[statusEmoji] ? (
+              <Image
+                source={{ uri: CUSTOM_EMOJIS[statusEmoji] }}
+                style={{ width: 16, height: 16, marginRight: Spacing.sm, resizeMode: 'contain' }}
+              />
+            ) : (
+              <Text style={{ fontSize: 16, marginRight: Spacing.sm }}>{statusEmoji}</Text>
+            )}
             <Text style={[styles.dropdownStatusText, { color: colors.text }]} numberOfLines={1}>{statusMessage}</Text>
           </TouchableOpacity>
 
           <View style={[styles.dropdownDivider, { backgroundColor: colors.border }]} />
-          
+
           <TouchableOpacity style={styles.menuItem} onPress={() => { router.push('/settings'); setMenuOpen(false); }}>
             <User size={16} color={colors.textSecondary} style={{ marginRight: 12 }} />
             <Text style={[styles.menuItemText, { color: colors.text }]}>Profile</Text>
@@ -175,7 +187,7 @@ export function GithubHeader() {
             <Settings size={16} color={colors.textSecondary} style={{ marginRight: 12 }} />
             <Text style={[styles.menuItemText, { color: colors.text }]}>Settings</Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity style={styles.menuItem} onPress={() => { logout(); setMenuOpen(false); }}>
             <LogOut size={16} color={colors.textSecondary} style={{ marginRight: 12 }} />
             <Text style={[styles.menuItemText, { color: colors.text }]}>Sign out</Text>
@@ -300,15 +312,27 @@ const styles = StyleSheet.create({
   },
   tabsScroll: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     paddingTop: Spacing.sm,
+  },
+  tabWrapper: {
+    marginRight: Spacing.sm,
+    paddingBottom: Spacing.sm,
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
+  },
+  tabWrapperActive: {
+    borderBottomColor: '#f78166',
   },
   tabItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: Spacing.sm,
-    paddingBottom: Spacing.md,
-    marginRight: Spacing.lg,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderRadius: BorderRadius.md,
+  },
+  tabItemHovered: {
+    backgroundColor: '#2a313c75',
   },
   tabText: {
     fontSize: FontSizes.sm,

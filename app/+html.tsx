@@ -8,6 +8,8 @@ export default function Root({ children }: { children: React.ReactNode }) {
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <title>GitHub Achievements Tracker</title>
+        <link rel="icon" type="image/svg+xml" href="https://github.githubassets.com/favicons/favicon.svg" media="(prefers-color-scheme: light)" />
+        <link rel="icon" type="image/svg+xml" href="https://github.githubassets.com/favicons/favicon-dark.svg" media="(prefers-color-scheme: dark)" />
         <meta name="description" content="Track your GitHub achievements and earn badges" />
         <ScrollViewStyleReset />
         <style dangerouslySetInnerHTML={{ __html: `

@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { View, FlatList, StyleSheet, Text, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
+import Head from 'expo-router/head';
 import { useTheme } from '@/context/ThemeContext';
 import { useAuth } from '@/context/AuthContext';
 import { useSearch } from '@/context/SearchContext';
@@ -23,7 +24,7 @@ const FILTERS = [
 
 export default function CatalogScreen() {
   const { colors, toggleTheme, isDark } = useTheme();
-  const { progress } = useAuth();
+  const { progress, profile } = useAuth();
   const { query } = useSearch();
   const router = useRouter();
   const { width } = useWindowDimensions();
@@ -61,6 +62,9 @@ export default function CatalogScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <Head>
+        <title>{profile?.username || 'guest'} / GitHub-Achievements</title>
+      </Head>
       <SearchFilter
         selectedFilter={selectedFilter}
         onFilterChange={setSelectedFilter}
@@ -111,6 +115,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.lg,
   },
   header: {
     flexDirection: 'row',
